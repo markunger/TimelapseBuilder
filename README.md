@@ -164,6 +164,20 @@ from its (uncustomized) target during an icon-cache rebuild, which
 shows up as the Desktop icon reverting to a generic one after a
 restart.
 
+**If the Desktop icon ever reverts to a generic one after a `git
+pull`** (this can happen since a pull replaces `Timelapse
+Builder.command` with a new file, which can desync the alias from its
+target even though the path is unchanged): delete the Desktop alias
+and recreate it fresh with the same commands above —
+
+```
+rm ~/Desktop/"Timelapse Builder.command"
+```
+
+— then re-run the whole block above (from `brew install fileicon`
+through the `extension hidden` line) from inside the project folder.
+This has been confirmed to fix it; a restart alone is not enough.
+
 ## Using the app
 
 1. Open the app (double-click the launcher).
