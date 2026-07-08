@@ -3,11 +3,19 @@ and timestamp-overlay toggles, Start/Stop, and a live log."""
 
 import os
 import queue
+import sys
 import tkinter as tk
 from tkinter import filedialog, scrolledtext, ttk
 
 import config as config_module
-from core import Watcher, WatcherConfig
+
+try:
+    from core import Watcher, WatcherConfig
+except ImportError as e:
+    print(f"Missing required Python package: {e.name}")
+    print("Run this in Terminal to install it, then try again:")
+    print("  pip3 install -r requirements.txt")
+    sys.exit(1)
 
 POLL_INTERVAL_MS = 200
 

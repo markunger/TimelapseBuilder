@@ -1,8 +1,6 @@
 #!/bin/zsh
 cd "${0:A:h}"
-PYTHON="/Library/Frameworks/Python.framework/Versions/3.12/bin/python3"
-[ -x "$PYTHON" ] || PYTHON="python3"
-"$PYTHON" gui.py
+python3 gui.py
 exit_status=$?
 if [ $exit_status -ne 0 ]; then
   echo ""

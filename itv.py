@@ -2,9 +2,17 @@
 with the saved toggle states. Run the GUI (gui.py) for folder/toggle picking."""
 
 import argparse
+import sys
 
 import config as config_module
-from core import Watcher, WatcherConfig
+
+try:
+    from core import Watcher, WatcherConfig
+except ImportError as e:
+    print(f"Missing required Python package: {e.name}")
+    print("Run this in Terminal to install it, then try again:")
+    print("  pip3 install -r requirements.txt")
+    sys.exit(1)
 
 
 def main():
