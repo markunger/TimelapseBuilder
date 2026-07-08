@@ -24,13 +24,14 @@ card does), and optionally stamps each frame with its capture date/time.
    create it automatically the first time you click Start if it doesn't
    exist yet — or pick a different folder from within the app).
 
-3. **Launch the app** by double-clicking **`Launch TimelapseBuilder.command`**.
+3. **Launch the app** by double-clicking **`Timelapse Builder.command`**
+   (there's a Desktop shortcut with a custom icon for this — see below).
 
    The **first time** you do this, macOS will likely refuse and say the
    file is from an "unidentified developer." This is normal for any
    script you write yourself rather than download from the App Store.
    To get past it, just this once:
-   - **Right-click** (or Control-click) `Launch TimelapseBuilder.command`
+   - **Right-click** (or Control-click) `Timelapse Builder.command`
      and choose **Open** from the menu (don't just double-click).
    - Click **Open Anyway** in the dialog that appears. On newer versions
      of macOS this button appears under **System Settings → Privacy &
@@ -43,6 +44,16 @@ card does), and optionally stamps each frame with its capture date/time.
    accidentally clicked "Don't Allow" and it's not prompting again, fix
    it manually: **System Settings → Privacy & Security → Files and
    Folders**, then enable Desktop access for Terminal.
+
+## Desktop shortcut
+
+There's a "Timelapse Builder" icon on the Desktop — a Finder alias
+pointing at `Timelapse Builder.command` in this project folder, with a
+custom black/white "WL/TB" icon. If it's ever deleted, recreate it by
+right-clicking `Timelapse Builder.command` in this folder → **Make
+Alias**, then drag the alias to the Desktop (a plain Unix symlink won't
+show the custom icon correctly on the Desktop — it has to be a real
+Finder alias).
 
 ## Using the app
 
