@@ -142,6 +142,8 @@ project folder, i.e. right after step 4 above):
 ```
 brew install fileicon
 
+fileicon set "Timelapse Builder.command" assets/icon.icns
+
 osascript -e '
 set targetFile to POSIX file "'"$(pwd)"'/Timelapse Builder.command" as alias
 set desktopFolder to path to desktop folder
@@ -155,6 +157,12 @@ fileicon set ~/Desktop/"Timelapse Builder.command" assets/icon.icns
 
 osascript -e 'tell application "Finder" to set extension hidden of file (POSIX file "'"$HOME"'/Desktop/Timelapse Builder.command" as alias) to true'
 ```
+
+The icon must be set on **both** the real file and the Desktop alias —
+if it's only set on the alias, macOS can re-derive the alias's icon
+from its (uncustomized) target during an icon-cache rebuild, which
+shows up as the Desktop icon reverting to a generic one after a
+restart.
 
 ## Using the app
 
