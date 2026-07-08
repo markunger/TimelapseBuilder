@@ -14,60 +14,76 @@ Terminal is the app that runs the commands below.
 - Press **⌘ Command + Space** to open Spotlight Search.
 - Type `Terminal` and press **Return**.
 
-You'll paste each gray command block below into that window one at a
-time (click inside the window, paste with **⌘V**, press **Return** to
-run it, then wait for it to finish before pasting the next one).
+Each step below has a gray command block. For each one: click inside
+the Terminal window, paste the command (**⌘V**), and press **Return**
+to run it. Wait until you see the "you'll know this step is done when"
+line for that step before moving to the next one.
 
 ### 1. Install Xcode Command Line Tools (gives you `git`)
 
+Copy the command below, paste it into Terminal, and press **Return**:
 ```
 xcode-select --install
 ```
 
-This opens a graphical popup — click **Install**, agree to the license,
-and wait for it to finish downloading (a few minutes) before continuing.
-If it says `command line tools are already installed`, that's fine —
-just move on to the next step.
+**You'll know this step is done when:** a graphical popup appears —
+click **Install**, agree to the license, and wait for it to finish
+downloading (a few minutes). If Terminal instead immediately shows
+`xcode-select: error: command line tools are already installed`,
+that's fine too — just move on to the next step.
 
-**If this fails with a network error**, skip straight to downloading it
-directly instead: go to
-[developer.apple.com/download/all](https://developer.apple.com/download/all/)
-in a browser, sign in with any free Apple ID, search "Command Line
-Tools," download the `.dmg` matching your macOS version, and run that
-installer by hand.
+> **You may also see a generic malware/security warning pop up**
+> (seen on macOS Tahoe) when running this command. It's safe to
+> dismiss and doesn't stop the install from continuing.
+
+> **If this fails with a network error:** skip straight to downloading
+> it directly instead — go to
+> [developer.apple.com/download/all](https://developer.apple.com/download/all/)
+> in a browser, sign in with any free Apple ID, search "Command Line
+> Tools," download the `.dmg` matching your macOS version, and run
+> that installer by hand.
 
 ### 2. Install Homebrew (lets you install ffmpeg and Python packages)
 
+Copy the command below, paste it into Terminal, and press **Return**:
 ```
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-This will ask you to press **Return** to confirm, and may ask for your
-Mac's login password — typing a password in Terminal shows nothing on
-screen (no dots, no cursor movement), that's normal, just type it and
-press Return.
+This will ask you to press **Return** again to confirm, and may ask
+for your Mac's login password — typing a password in Terminal shows
+nothing on screen (no dots, no cursor movement), that's normal, just
+type it and press Return.
 
-When it finishes, it prints a "Next steps" block with 1-3 commands to
-add Homebrew to your PATH (common on newer Macs with Apple Silicon,
-which includes the 2021 24" iMac) — copy and run exactly what it shows
-you, which looks like:
+**You'll know this step is done when:** Terminal prints
+`Installation successful!` and returns to a normal prompt line.
 
+It also prints a "Next steps" block with 1-3 commands to add Homebrew
+to your PATH (common on Apple Silicon Macs, which includes the 2021
+24" iMac). Copy and paste exactly what it shows you — it will look
+like the two lines below — and press **Return**:
 ```
 echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
 eval "$(/opt/homebrew/bin/brew shellenv)"
 ```
 
-Then confirm it worked:
+**You'll know this step is done when:** Terminal returns to a normal
+prompt line with no error message (these two commands print nothing
+on success — that's expected, not a sign of a problem).
 
+Then confirm Homebrew is really installed. Copy the command below,
+paste it into Terminal, and press **Return**:
 ```
 brew --version
 ```
 
-You should see something like `Homebrew 4.x.x` printed — the word
-"Homebrew" followed by a version number confirms it installed correctly.
+**You'll know this step is done when:** you see something like
+`Homebrew 4.x.x` printed — the word "Homebrew" followed by a version
+number confirms it installed correctly.
 
 ### 3. Install ffmpeg and Python (with Tkinter for the GUI)
 
+Copy the command below, paste it into Terminal, and press **Return**:
 ```
 brew install ffmpeg python-tk
 ```
@@ -75,70 +91,52 @@ brew install ffmpeg python-tk
 Homebrew may list what it's about to install and ask you to type **y**
 and press **Return** to confirm before it starts downloading.
 
+**You'll know this step is done when:** Terminal returns to a normal
+prompt line with no errors (this can take a few minutes).
+
 ### 4. Download this project
 
+Copy the command below, paste it into Terminal, and press **Return**:
 ```
 git clone https://github.com/markunger/TimelapseBuilder.git ~/Projects/TimelapseBuilder
 cd ~/Projects/TimelapseBuilder
 ```
 
-Cloning (rather than downloading the ZIP from GitHub) preserves the
-launcher's executable permission and lets you `git pull` for updates
-later.
+**You'll know this step is done when:** Terminal shows `Cloning into
+'.../TimelapseBuilder'...` followed by a short summary, and the prompt
+changes to show you're now inside the `TimelapseBuilder` folder.
+
+> **For reference (not required to know):** `git clone` downloads a
+> fresh copy of the project one time. If the project ever gets
+> updated later, you don't clone again — you run `git pull` from
+> inside this same folder to fetch just the changes.
 
 ### 5. Install this project's Python dependencies
 
+Copy the command below, paste it into Terminal, and press **Return**:
 ```
 pip3 install --break-system-packages -r requirements.txt
 ```
 
-`--break-system-packages` is needed because Homebrew's Python normally
-blocks plain `pip install` to protect its own managed packages (you may
-see an `externally-managed-environment` error without it). This is
-fine here — it's a dedicated install for this one small project.
+**You'll know this step is done when:** Terminal shows a line like
+`Successfully installed pillow-... watchdog-...` and returns to a
+normal prompt.
 
-### 6. Point Canon EOS Utility (or your camera software) at a save folder
+> **For reference (not required to know):** `--break-system-packages`
+> is needed because Homebrew's Python normally blocks a plain `pip
+> install` to protect its own managed packages (you may see an
+> `externally-managed-environment` error without it). That's fine
+> here — it's a dedicated install for this one small project.
 
-By default this app watches `~/Desktop/TL_Folder`. Set your camera
-software's "save to" destination to that same folder (the app will
-create it automatically the first time you click Start if it doesn't
-exist yet — or pick a different folder from within the app).
+### 6. Add the Desktop shortcut
 
-### 7. Launch the app
+This creates a "Timelapse Builder" icon on your Desktop with a custom
+black/white icon, so you can launch the app without navigating to
+this project folder every time.
 
-Double-click **`Timelapse Builder.command`** (there's a Desktop shortcut
-with a custom icon for this — see below).
-
-The **first time** you do this, macOS will likely refuse and say the
-file is from an "unidentified developer." This is normal for any
-script you write yourself rather than download from the App Store.
-To get past it, just this once:
-- **Right-click** (or Control-click) `Timelapse Builder.command`
-  and choose **Open** from the menu (don't just double-click).
-- Click **Open Anyway** in the dialog that appears. On newer versions
-  of macOS this button appears under **System Settings → Privacy &
-  Security**, near the bottom of the page.
-- After this first time, plain double-clicking will work normally.
-
-### 8. Folder access prompt
-
-The first time the app actually reads or writes files on your Desktop,
-macOS may ask "Terminal would like to access files in your Desktop
-folder" — click **OK**. If you accidentally clicked "Don't Allow" and
-it's not prompting again, fix it manually: **System Settings → Privacy
-& Security → Files and Folders**, then enable Desktop access for
-Terminal.
-
-## Desktop shortcut
-
-There's a "Timelapse Builder" icon on the Desktop — a Finder alias
-pointing at `Timelapse Builder.command` in this project folder, with a
-custom black/white "WL/TB" icon from `assets/icon.icns` (included in
-this repo, so it's identical on every machine). A plain Unix symlink
-won't show the custom icon correctly on the Desktop — it has to be a
-real Finder alias — so recreate it with (run this from inside the
-project folder, i.e. right after step 4 above):
-
+Copy the whole block below, paste it into Terminal, and press
+**Return** (run this from inside the project folder, i.e. right after
+step 5 above):
 ```
 brew install fileicon
 
@@ -158,29 +156,60 @@ fileicon set ~/Desktop/"Timelapse Builder.command" assets/icon.icns
 osascript -e 'tell application "Finder" to set extension hidden of file (POSIX file "'"$HOME"'/Desktop/Timelapse Builder.command" as alias) to true'
 ```
 
-The icon must be set on **both** the real file and the Desktop alias —
-if it's only set on the alias, macOS can re-derive the alias's icon
-from its (uncustomized) target during an icon-cache rebuild, which
-shows up as the Desktop icon reverting to a generic one after a
-restart.
+**You'll know this step is done when:** a black "Timelapse Builder"
+icon appears on your Desktop.
 
-**If the Desktop icon ever reverts to a generic one after a `git
-pull`** (this can happen since a pull replaces `Timelapse
-Builder.command` with a new file, which can desync the alias from its
-target even though the path is unchanged): delete the Desktop alias
-and recreate it fresh with the same commands above —
+> **For reference (not required to know):** the icon is deliberately
+> set on both the real file and the Desktop shortcut — if it's only
+> set on the shortcut, macOS can revert the shortcut's icon to a
+> generic one after a restart. If that ever happens (most likely
+> after a future `git pull` updates the launcher file), delete the
+> shortcut with `rm ~/Desktop/"Timelapse Builder.command"` and re-run
+> this whole step again — a restart alone won't fix it.
 
-```
-rm ~/Desktop/"Timelapse Builder.command"
-```
+### 7. Point Canon EOS Utility (or your camera software) at the save folder
 
-— then re-run the whole block above (from `brew install fileicon`
-through the `extension hidden` line) from inside the project folder.
-This has been confirmed to fix it; a restart alone is not enough.
+By default this app watches `~/Desktop/TL_Folder`. Set your camera
+software's "save to" destination to that same folder (the app will
+create it automatically the first time you click Start if it doesn't
+exist yet — or you can pick a different folder from within the app
+once it's open).
+
+There's no Terminal command for this step — it's done inside your
+camera software's own settings/preferences.
+
+### 8. Launch the app
+
+Double-click the **Timelapse Builder** icon on your Desktop (the one
+created in step 6).
+
+The **first time** you do this, macOS will likely refuse and say the
+file is from an "unidentified developer." This is normal for any
+script you write yourself rather than download from the App Store.
+To get past it, just this once:
+- **Right-click** (or Control-click) the **Timelapse Builder** Desktop
+  icon and choose **Open** from the menu (don't just double-click).
+- Click **Open Anyway** in the dialog that appears. On newer versions
+  of macOS this button appears under **System Settings → Privacy &
+  Security**, near the bottom of the page.
+- After this first time, plain double-clicking will work normally.
+
+**You'll know this step is done when:** a Terminal window briefly
+opens behind it, then the TimelapseBuilder app window appears with a
+Watch folder field, two checkboxes, and a Start button.
+
+### 9. Folder access prompt
+
+The first time the app actually reads or writes files on your Desktop,
+macOS may ask "Terminal would like to access files in your Desktop
+folder" — click **OK**. If you accidentally clicked "Don't Allow" and
+it's not prompting again, fix it manually: **System Settings → Privacy
+& Security → Files and Folders**, then enable Desktop access for
+Terminal.
 
 ## Using the app
 
-1. Open the app (double-click the launcher).
+1. Open the app (double-click the **Timelapse Builder** Desktop icon).
 2. Confirm or change the **Watch folder** — this must match where your
    camera software is saving photos.
 3. Check the boxes for whatever you want:
@@ -197,6 +226,18 @@ Your folder choice and checkbox settings are remembered automatically
 between launches (stored in
 `~/Library/Application Support/TimelapseBuilder/config.json` — delete
 that file if you ever want the app to reset to defaults).
+
+## Shutting down the app
+
+1. If the app is actively watching, click **Stop** (optional — closing
+   the window does this safely too, automatically).
+2. Close the TimelapseBuilder window (click the red button in the
+   top-left corner, or press **⌘Q** while it's focused).
+3. A Terminal window is still open behind it — that's normal, it's
+   what actually ran the app. You'll know it's safe to close because
+   it prints `TimelapseBuilder closed.` once the app window is gone.
+   Click into that Terminal window and close it too (**⌘W**, or **⌘Q**
+   to quit Terminal entirely if it's the only window open).
 
 ## Terminal / advanced use
 

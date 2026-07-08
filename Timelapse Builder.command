@@ -6,4 +6,6 @@ if [ $exit_status -ne 0 ]; then
   echo ""
   echo "TimelapseBuilder exited with an error (see above)."
   read -n 1 -s -r -p "Press any key to close this window..."
+else
+  echo "TimelapseBuilder closed."
 fi
