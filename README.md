@@ -89,8 +89,13 @@ later.
 ### 5. Install this project's Python dependencies
 
 ```
-pip3 install -r requirements.txt
+pip3 install --break-system-packages -r requirements.txt
 ```
+
+`--break-system-packages` is needed because Homebrew's Python normally
+blocks plain `pip install` to protect its own managed packages (you may
+see an `externally-managed-environment` error without it). This is
+fine here — it's a dedicated install for this one small project.
 
 ### 6. Point Canon EOS Utility (or your camera software) at a save folder
 
