@@ -63,6 +63,9 @@ Then confirm it worked:
 brew --version
 ```
 
+You should see something like `Homebrew 4.x.x` printed — the word
+"Homebrew" followed by a version number confirms it installed correctly.
+
 ### 3. Install ffmpeg and Python (with Tkinter for the GUI)
 
 ```
