@@ -58,10 +58,10 @@ type it and press Return.
 **You'll know this step is done when:** Terminal prints
 `Installation successful!` and returns to a normal prompt line.
 
-It also prints a "Next steps" block with 1-3 commands to add Homebrew
-to your PATH (common on Apple Silicon Macs, which includes the 2021
-24" iMac). Copy and paste exactly what it shows you — it will look
-like the two lines below — and press **Return**:
+It also prints a "Next steps" block about adding Homebrew to your PATH
+(common on Apple Silicon Macs, which includes the 2021 24" iMac) —
+you can ignore what it shows there. Instead, copy the command below,
+paste it into Terminal, and press **Return**:
 ```
 echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
 eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -169,14 +169,25 @@ icon appears on your Desktop.
 
 ### 7. Point Canon EOS Utility (or your camera software) at the save folder
 
-By default this app watches `~/Desktop/TL_Folder`. Set your camera
-software's "save to" destination to that same folder (the app will
-create it automatically the first time you click Start if it doesn't
-exist yet — or you can pick a different folder from within the app
-once it's open).
+By default this app watches `~/Desktop/TL_Folder`. That folder needs to
+already exist before you can select it in EOS Utility's settings, so
+create it first. Copy the command below, paste it into Terminal, and
+press **Return**:
+```
+mkdir -p ~/Desktop/TL_Folder
+```
 
-There's no Terminal command for this step — it's done inside your
-camera software's own settings/preferences.
+**You'll know this step is done when:** Terminal returns to a normal
+prompt line with no output (this command doesn't print anything on
+success). You should also see a new `TL_Folder` folder appear on your
+Desktop.
+
+Then, in Canon EOS Utility (or your camera software), set its "save
+to" destination to that same `TL_Folder` folder on your Desktop —
+this part is done inside your camera software's own settings, not in
+Terminal. If you'd rather use a different folder, that's fine too —
+just create it the same way and pick it from within the TimelapseBuilder
+app once it's open, instead of the default.
 
 ### 8. Launch the app
 
