@@ -8,60 +8,108 @@ card does), and optionally stamps each frame with its capture date/time.
 
 ## One-time setup (new Mac)
 
-1. **Get the code.** Install Xcode Command Line Tools if needed
-   (`xcode-select --install`, gives you `git`), then:
-   ```
-   git clone https://github.com/markunger/TimelapseBuilder.git ~/Projects/TimelapseBuilder
-   cd ~/Projects/TimelapseBuilder
-   ```
-   Cloning (rather than downloading the ZIP from GitHub) preserves the
-   launcher's executable permission and lets you `git pull` for updates
-   later.
+### Open Terminal
 
-2. **Make sure ffmpeg is installed.**
-   ```
-   ffmpeg -version
-   ```
-   If that says "command not found," install it once with
-   [Homebrew](https://brew.sh):
-   ```
-   brew install ffmpeg
-   ```
+Terminal is the app that runs the commands below.
+- Press **⌘ Command + Space** to open Spotlight Search.
+- Type `Terminal` and press **Return**.
 
-3. **Install the Python dependencies.** Make sure `python3` has Tkinter
-   available (the [python.org](https://www.python.org/downloads/)
-   installer bundles it; Homebrew's python3 needs `brew install
-   python-tk` added separately), then:
-   ```
-   pip3 install -r requirements.txt
-   ```
+You'll paste each gray command block below into that window one at a
+time (click inside the window, paste with **⌘V**, press **Return** to
+run it, then wait for it to finish before pasting the next one).
 
-4. **Point Canon EOS Utility (or your camera software) at a save folder.**
-   By default this app watches `~/Desktop/TL_Folder`. Set your camera
-   software's "save to" destination to that same folder (the app will
-   create it automatically the first time you click Start if it doesn't
-   exist yet — or pick a different folder from within the app).
+### 1. Install Xcode Command Line Tools (gives you `git`)
 
-5. **Launch the app** by double-clicking **`Timelapse Builder.command`**
-   (there's a Desktop shortcut with a custom icon for this — see below).
+```
+xcode-select --install
+```
 
-   The **first time** you do this, macOS will likely refuse and say the
-   file is from an "unidentified developer." This is normal for any
-   script you write yourself rather than download from the App Store.
-   To get past it, just this once:
-   - **Right-click** (or Control-click) `Timelapse Builder.command`
-     and choose **Open** from the menu (don't just double-click).
-   - Click **Open Anyway** in the dialog that appears. On newer versions
-     of macOS this button appears under **System Settings → Privacy &
-     Security**, near the bottom of the page.
-   - After this first time, plain double-clicking will work normally.
+This opens a graphical popup — click **Install**, agree to the license,
+and wait for it to finish downloading (a few minutes) before continuing.
+If it says `command line tools are already installed`, that's fine —
+just move on to the next step.
 
-6. **Folder access prompt.** The first time the app actually reads or
-   writes files on your Desktop, macOS may ask "Terminal would like to
-   access files in your Desktop folder" — click **OK**. If you
-   accidentally clicked "Don't Allow" and it's not prompting again, fix
-   it manually: **System Settings → Privacy & Security → Files and
-   Folders**, then enable Desktop access for Terminal.
+### 2. Install Homebrew (lets you install ffmpeg and Python packages)
+
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+This will ask you to press **Return** to confirm, and may ask for your
+Mac's login password — typing a password in Terminal shows nothing on
+screen (no dots, no cursor movement), that's normal, just type it and
+press Return.
+
+When it finishes, it prints a "Next steps" block with 1-3 commands to
+add Homebrew to your PATH (common on newer Macs with Apple Silicon,
+which includes the 2021 24" iMac) — copy and run exactly what it shows
+you, which looks like:
+
+```
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"
+```
+
+Then confirm it worked:
+
+```
+brew --version
+```
+
+### 3. Install ffmpeg and Python (with Tkinter for the GUI)
+
+```
+brew install ffmpeg python-tk
+```
+
+### 4. Download this project
+
+```
+git clone https://github.com/markunger/TimelapseBuilder.git ~/Projects/TimelapseBuilder
+cd ~/Projects/TimelapseBuilder
+```
+
+Cloning (rather than downloading the ZIP from GitHub) preserves the
+launcher's executable permission and lets you `git pull` for updates
+later.
+
+### 5. Install this project's Python dependencies
+
+```
+pip3 install -r requirements.txt
+```
+
+### 6. Point Canon EOS Utility (or your camera software) at a save folder
+
+By default this app watches `~/Desktop/TL_Folder`. Set your camera
+software's "save to" destination to that same folder (the app will
+create it automatically the first time you click Start if it doesn't
+exist yet — or pick a different folder from within the app).
+
+### 7. Launch the app
+
+Double-click **`Timelapse Builder.command`** (there's a Desktop shortcut
+with a custom icon for this — see below).
+
+The **first time** you do this, macOS will likely refuse and say the
+file is from an "unidentified developer." This is normal for any
+script you write yourself rather than download from the App Store.
+To get past it, just this once:
+- **Right-click** (or Control-click) `Timelapse Builder.command`
+  and choose **Open** from the menu (don't just double-click).
+- Click **Open Anyway** in the dialog that appears. On newer versions
+  of macOS this button appears under **System Settings → Privacy &
+  Security**, near the bottom of the page.
+- After this first time, plain double-clicking will work normally.
+
+### 8. Folder access prompt
+
+The first time the app actually reads or writes files on your Desktop,
+macOS may ask "Terminal would like to access files in your Desktop
+folder" — click **OK**. If you accidentally clicked "Don't Allow" and
+it's not prompting again, fix it manually: **System Settings → Privacy
+& Security → Files and Folders**, then enable Desktop access for
+Terminal.
 
 ## Desktop shortcut
 
@@ -70,7 +118,8 @@ pointing at `Timelapse Builder.command` in this project folder, with a
 custom black/white "WL/TB" icon from `assets/icon.icns` (included in
 this repo, so it's identical on every machine). A plain Unix symlink
 won't show the custom icon correctly on the Desktop — it has to be a
-real Finder alias — so recreate it with:
+real Finder alias — so recreate it with (run this from inside the
+project folder, i.e. right after step 4 above):
 
 ```
 brew install fileicon
