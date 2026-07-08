@@ -72,6 +72,9 @@ You should see something like `Homebrew 4.x.x` printed — the word
 brew install ffmpeg python-tk
 ```
 
+Homebrew may list what it's about to install and ask you to type **y**
+and press **Return** to confirm before it starts downloading.
+
 ### 4. Download this project
 
 ```
