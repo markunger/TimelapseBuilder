@@ -58,8 +58,11 @@ def find_matching_raw(folder, stem):
 
 def _run_ffmpeg(command, log, context):
     try:
-        subprocess.run(command, check=True, capture_output=True)
+        subprocess.run(command, check=True, capture_output=True, timeout=300)
         return True
+    except subprocess.TimeoutExpired:
+        log(f"{context} timed out (exceeded 5 minutes)")
+        return False
     except subprocess.CalledProcessError as e:
         stderr = e.stderr.decode(errors="replace") if e.stderr else ""
         log(f"{context} failed: {stderr.strip()[-500:] or e}")
@@ -404,8 +407,11 @@ class Watcher:
         self.observer.start()
 
     def stop(self):
+        self.config.log("Stopping observer...")
         self.observer.stop()
-        self.observer.join(timeout=5)
+        self.config.log("Waiting for observer thread to finish (this may take a moment)...")
+        self.observer.join()  # Wait indefinitely for observer to actually stop
+        self.config.log("Observer stopped.")
 
     def run_blocking(self):
         self.start()
