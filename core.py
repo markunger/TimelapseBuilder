@@ -102,8 +102,7 @@ class Handler(FileSystemEventHandler):
             if i % PROGRESS_LOG_EVERY == 0:
                 self.log(f"Processed {i}/{len(paths)} existing image(s)...")
 
-        with self.compile_lock:
-            self.compile_video()
+        self.compile_video()
 
     def on_created(self, event):
         if event.is_directory or not event.src_path.lower().endswith(".jpg"):
