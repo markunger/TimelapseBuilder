@@ -24,7 +24,7 @@ class App:
     def __init__(self, root):
         self.root = root
         self.root.title("WonderLab Timelapse Builder")
-        self.root.geometry("480x380")
+        self.root.geometry("380x500")
         self.root.config(bg="black")
 
         self.watcher = None
@@ -45,7 +45,7 @@ class App:
     def _build_widgets(self):
         bg_color = "#B9BBB6"
         self.root.config(bg=bg_color)
-        self.root.geometry("480x450")
+        self.root.geometry("380x500")
 
         pad = {"padx": 12, "pady": 8}
 
@@ -57,7 +57,7 @@ class App:
         folder_frame = tk.Frame(main_frame, bg=bg_color)
         folder_frame.pack(fill="x", **pad)
         tk.Label(folder_frame, text="Watch folder:", bg=bg_color, fg="black").pack(anchor="w")
-        self.folder_entry = tk.Entry(folder_frame, textvariable=self.folder_var, state="readonly")
+        self.folder_entry = tk.Entry(folder_frame, textvariable=self.folder_var, state="readonly", relief=tk.FLAT, bg="white", fg="black")
         self.folder_entry.pack(fill="x", pady=(4, 4))
         self.browse_button = tk.Button(folder_frame, text="Choose Folder...", command=self._choose_folder)
         self.browse_button.pack(anchor="w")
@@ -89,11 +89,12 @@ class App:
         self.focus_stack_frame = tk.Frame(main_frame, bg=bg_color)
         self.focus_stack_frame.pack(fill="x", padx=30, pady=(0, 6))
         tk.Label(self.focus_stack_frame, text="Stack size:", bg=bg_color, fg="black").pack(side="left", padx=(0, 6))
-        self.stack_size_entry = tk.Entry(self.focus_stack_frame, textvariable=self.stack_size_var, width=8)
+        self.stack_size_entry = tk.Entry(self.focus_stack_frame, textvariable=self.stack_size_var, width=8, relief=tk.FLAT, bg="white", fg="black")
         self.stack_size_entry.pack(side="left", padx=(0, 12))
         tk.Label(self.focus_stack_frame, text="Monitor photo #:", bg=bg_color, fg="black").pack(side="left", padx=(0, 6))
-        self.monitor_index_entry = tk.Entry(self.focus_stack_frame, textvariable=self.monitor_index_var, width=8)
+        self.monitor_index_entry = tk.Entry(self.focus_stack_frame, textvariable=self.monitor_index_var, width=8, relief=tk.FLAT, bg="white", fg="black")
         self.monitor_index_entry.pack(side="left")
+        self._update_focus_stack_state()
 
         # Control row (Start/Stop button and status)
         control_row = tk.Frame(main_frame, bg=bg_color)
@@ -115,8 +116,8 @@ class App:
         self.log_frame.pack(fill="both", expand=True, padx=0, pady=8)
         tk.Label(self.log_frame, text="Log:", bg=bg_color, fg="black").pack(anchor="w", padx=0, pady=(0, 4))
         self.log_text = scrolledtext.ScrolledText(
-            self.log_frame, height=6, state="disabled",
-            bg="white", fg="black", insertbackground="black"
+            self.log_frame, height=10, state="disabled",
+            bg="white", fg="black", insertbackground="black", relief=tk.FLAT
         )
         self.log_text.pack(fill="both", expand=True, padx=0, pady=0)
 
@@ -128,8 +129,13 @@ class App:
             self.folder_var.set(chosen)
 
     def _on_focus_stack_toggle(self):
-        # Focus stack options are always visible now
-        pass
+        self._update_focus_stack_state()
+
+    def _update_focus_stack_state(self):
+        enabled = self.focus_stack_var.get()
+        state = "normal" if enabled else "disabled"
+        for widget in (self.stack_size_entry, self.monitor_index_entry):
+            widget.config(state=state)
 
     def _toggle(self):
         if self.watcher is None:
