@@ -35,6 +35,9 @@ class WatcherConfig:
     folder: str
     delete_raw: bool = False
     overlay_timestamp: bool = False
+    focus_stack_enabled: bool = False
+    stack_size: int = 1
+    monitor_index: int = 1
     log: Callable[[str], None] = print
     on_start_time: Callable[[datetime], None] = _default_start_time_cb
 
@@ -186,6 +189,22 @@ class Handler(FileSystemEventHandler):
         jpgs = sorted(f for f in os.listdir(folder) if f.lower().endswith(".jpg"))
         if not jpgs:
             return
+
+        # Filter JPGs for focus stack mode
+        if self.config.focus_stack_enabled and self.config.stack_size > 1:
+            monitor_idx = self.config.monitor_index - 1  # Convert to 0-based index
+            if monitor_idx < 0 or monitor_idx >= self.config.stack_size:
+                self.log(f"Invalid monitor index {self.config.monitor_index} for stack size {self.config.stack_size}")
+                return
+            filtered_jpgs = []
+            for i in range(monitor_idx, len(jpgs), self.config.stack_size):
+                filtered_jpgs.append(jpgs[i])
+            if filtered_jpgs:
+                self.log(f"Focus stack mode: using {len(filtered_jpgs)} of {len(jpgs)} photos (stack size {self.config.stack_size}, monitoring photo {self.config.monitor_index})")
+                jpgs = filtered_jpgs
+            else:
+                self.log(f"No matching photos found for focus stack settings")
+                return
 
         current_overlay = self.config.overlay_timestamp
         toggle_changed = (self.last_known_overlay_timestamp != current_overlay)

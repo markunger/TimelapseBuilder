@@ -24,7 +24,7 @@ class App:
     def __init__(self, root):
         self.root = root
         self.root.title("TimelapseBuilder")
-        self.root.geometry("480x420")
+        self.root.geometry("480x520")
 
         self.watcher = None
         self.msg_queue = queue.Queue()
@@ -33,6 +33,9 @@ class App:
         self.folder_var = tk.StringVar(value=saved["watch_folder"])
         self.delete_raw_var = tk.BooleanVar(value=saved["delete_raw"])
         self.overlay_var = tk.BooleanVar(value=saved["overlay_timestamp"])
+        self.focus_stack_var = tk.BooleanVar(value=saved["focus_stack_enabled"])
+        self.stack_size_var = tk.StringVar(value=str(saved["stack_size"]))
+        self.monitor_index_var = tk.StringVar(value=str(saved["monitor_index"]))
 
         self._build_widgets()
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
@@ -63,6 +66,24 @@ class App:
         )
         self.overlay_check.pack(anchor="w", **pad)
 
+        self.focus_stack_check = ttk.Checkbutton(
+            self.root, text="Focus stack timelapse",
+            variable=self.focus_stack_var,
+            command=self._on_focus_stack_toggle,
+        )
+        self.focus_stack_check.pack(anchor="w", **pad)
+
+        self.focus_stack_frame = ttk.Frame(self.root)
+        self.focus_stack_frame.pack(fill="x", padx=20, pady=(0, 6))
+        ttk.Label(self.focus_stack_frame, text="Stack size:").pack(side="left", padx=(0, 6))
+        self.stack_size_entry = ttk.Entry(self.focus_stack_frame, textvariable=self.stack_size_var, width=8)
+        self.stack_size_entry.pack(side="left", padx=(0, 12))
+        self.stack_size_entry.config(state="normal" if self.focus_stack_var.get() else "disabled")
+        ttk.Label(self.focus_stack_frame, text="Monitor photo #:").pack(side="left", padx=(0, 6))
+        self.monitor_index_entry = ttk.Entry(self.focus_stack_frame, textvariable=self.monitor_index_var, width=8)
+        self.monitor_index_entry.pack(side="left")
+        self.monitor_index_entry.config(state="normal" if self.focus_stack_var.get() else "disabled")
+
         control_row = ttk.Frame(self.root)
         control_row.pack(fill="x", **pad)
         self.toggle_button = ttk.Button(control_row, text="Start", command=self._toggle)
@@ -84,6 +105,11 @@ class App:
         if chosen:
             self.folder_var.set(chosen)
 
+    def _on_focus_stack_toggle(self):
+        enabled = self.focus_stack_var.get()
+        for widget in (self.stack_size_entry, self.monitor_index_entry):
+            widget.config(state="normal" if enabled else "disabled")
+
     def _toggle(self):
         if self.watcher is None:
             self._start()
@@ -96,16 +122,40 @@ class App:
             self._append_log("Please choose a watch folder first.")
             return
 
+        # Validate focus stack settings if enabled
+        focus_stack_enabled = self.focus_stack_var.get()
+        stack_size = 1
+        monitor_index = 1
+        if focus_stack_enabled:
+            try:
+                stack_size = int(self.stack_size_var.get())
+                monitor_index = int(self.monitor_index_var.get())
+                if stack_size < 2:
+                    self._append_log("Stack size must be at least 2.")
+                    return
+                if monitor_index < 1 or monitor_index > stack_size:
+                    self._append_log(f"Monitor photo must be between 1 and {stack_size}.")
+                    return
+            except ValueError:
+                self._append_log("Stack size and monitor photo must be valid integers.")
+                return
+
         config_module.save_config({
             "watch_folder": folder,
             "delete_raw": self.delete_raw_var.get(),
             "overlay_timestamp": self.overlay_var.get(),
+            "focus_stack_enabled": focus_stack_enabled,
+            "stack_size": stack_size,
+            "monitor_index": monitor_index,
         })
 
         watcher_config = WatcherConfig(
             folder=folder,
             delete_raw=self.delete_raw_var.get(),
             overlay_timestamp=self.overlay_var.get(),
+            focus_stack_enabled=focus_stack_enabled,
+            stack_size=stack_size,
+            monitor_index=monitor_index,
             log=self._queue_log,
             on_start_time=self._queue_start_time,
         )
@@ -117,6 +167,9 @@ class App:
         self.browse_button.config(state="disabled")
         self.delete_raw_check.config(state="disabled")
         self.overlay_check.config(state="disabled")
+        self.focus_stack_check.config(state="disabled")
+        self.stack_size_entry.config(state="disabled")
+        self.monitor_index_entry.config(state="disabled")
 
     def _stop(self):
         if self.watcher is not None:
@@ -127,6 +180,11 @@ class App:
         self.browse_button.config(state="normal")
         self.delete_raw_check.config(state="normal")
         self.overlay_check.config(state="normal")
+        self.focus_stack_check.config(state="normal")
+        # Re-enable or disable the focus stack input fields based on checkbox state
+        stack_enabled = "normal" if self.focus_stack_var.get() else "disabled"
+        self.stack_size_entry.config(state=stack_enabled)
+        self.monitor_index_entry.config(state=stack_enabled)
 
     def _on_close(self):
         self._stop()

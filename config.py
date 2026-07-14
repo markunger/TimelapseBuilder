@@ -10,6 +10,9 @@ DEFAULTS = {
     "watch_folder": os.path.expanduser("~/Desktop/TL_Folder"),
     "delete_raw": False,
     "overlay_timestamp": False,
+    "focus_stack_enabled": False,
+    "stack_size": 1,
+    "monitor_index": 1,
 }
 
 
