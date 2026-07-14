@@ -74,6 +74,9 @@ class Handler(FileSystemEventHandler):
         self._segments_root = os.path.join(config.folder, SEGMENTS_DIRNAME)
         self.compile_lock = threading.Lock()
         self.last_known_overlay_timestamp = config.overlay_timestamp
+        self.last_known_focus_stack_enabled = config.focus_stack_enabled
+        self.last_known_stack_size = config.stack_size
+        self.last_known_monitor_index = config.monitor_index
 
     def log(self, msg):
         self.config.log(msg)
@@ -208,14 +211,27 @@ class Handler(FileSystemEventHandler):
 
         current_overlay = self.config.overlay_timestamp
         toggle_changed = (self.last_known_overlay_timestamp != current_overlay)
+
+        # Check if focus stack settings changed
+        focus_stack_changed = (
+            self.last_known_focus_stack_enabled != self.config.focus_stack_enabled or
+            self.last_known_stack_size != self.config.stack_size or
+            self.last_known_monitor_index != self.config.monitor_index
+        )
         final_output_video = os.path.join(folder, "output_video.mp4")
         output_exists = os.path.exists(final_output_video)
         mode_dir = self._mode_dir()
 
-        if toggle_changed:
-            # Full rebuild: overlay mode changed, re-encode all JPGs in new mode
-            self.log(f"Overlay mode changed, rebuilding all frames...")
+        if toggle_changed or focus_stack_changed:
+            # Full rebuild: overlay mode or focus stack settings changed
+            if toggle_changed:
+                self.log(f"Overlay mode changed, rebuilding all frames...")
+            if focus_stack_changed:
+                self.log(f"Focus stack settings changed, rebuilding all frames...")
             self.last_known_overlay_timestamp = current_overlay
+            self.last_known_focus_stack_enabled = self.config.focus_stack_enabled
+            self.last_known_stack_size = self.config.stack_size
+            self.last_known_monitor_index = self.config.monitor_index
 
             manifest_lines = []
             segments_to_delete = []
