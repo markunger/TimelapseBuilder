@@ -8,6 +8,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import threading
 import time
 from dataclasses import dataclass, field
 from typing import Callable, Optional
@@ -68,6 +69,8 @@ class Handler(FileSystemEventHandler):
         self.image_counter = 0
         self.start_datetime = None
         self._segments_root = os.path.join(config.folder, SEGMENTS_DIRNAME)
+        self.compile_lock = threading.Lock()
+        self.last_known_overlay_timestamp = config.overlay_timestamp
 
     def log(self, msg):
         self.config.log(msg)
@@ -90,15 +93,17 @@ class Handler(FileSystemEventHandler):
             if i % PROGRESS_LOG_EVERY == 0:
                 self.log(f"Processed {i}/{len(paths)} existing image(s)...")
 
-        self.compile_video()
+        with self.compile_lock:
+            self.compile_video()
 
     def on_created(self, event):
         if event.is_directory or not event.src_path.lower().endswith(".jpg"):
             return
         self.image_counter += 1
         self.log(f"Image {self.image_counter} detected: {os.path.basename(event.src_path)}")
-        self._handle_one(event.src_path, retry_raw=True)
-        self.compile_video()
+        with self.compile_lock:
+            self._handle_one(event.src_path, retry_raw=True)
+            self.compile_video()
 
     # --- per-photo processing -------------------------------------------
 
@@ -182,36 +187,144 @@ class Handler(FileSystemEventHandler):
         if not jpgs:
             return
 
-        mode_dir = self._mode_dir()
-        manifest_lines = []
-        for name in jpgs:
-            segment_path = self._ensure_segment(os.path.join(folder, name), mode_dir)
-            if segment_path:
-                manifest_lines.append(f"file '{segment_path}'\n")
-
-        if not manifest_lines:
-            return
-
-        manifest_path = os.path.join(self._segments_root, "manifest.txt")
-        with open(manifest_path, "w") as f:
-            f.writelines(manifest_lines)
-
-        temp_output_video = os.path.join(folder, "temp_output_video.mp4")
+        current_overlay = self.config.overlay_timestamp
+        toggle_changed = (self.last_known_overlay_timestamp != current_overlay)
         final_output_video = os.path.join(folder, "output_video.mp4")
-        command = [
-            "ffmpeg", "-y",
-            "-f", "concat",
-            "-safe", "0",
-            "-i", manifest_path,
-            "-c", "copy",
-            "-movflags", "faststart",
-            temp_output_video,
-        ]
-        if not _run_ffmpeg(command, self.log, "Compiling video"):
-            return
+        output_exists = os.path.exists(final_output_video)
+        mode_dir = self._mode_dir()
 
-        shutil.move(temp_output_video, final_output_video)
-        self.close_and_play_video(final_output_video)
+        if toggle_changed:
+            # Full rebuild: overlay mode changed, re-encode all JPGs in new mode
+            self.log(f"Overlay mode changed, rebuilding all frames...")
+            self.last_known_overlay_timestamp = current_overlay
+
+            manifest_lines = []
+            segments_to_delete = []
+            for name in jpgs:
+                jpg_path = os.path.join(folder, name)
+                segment_path = self._ensure_segment(jpg_path, mode_dir)
+                if segment_path:
+                    manifest_lines.append(f"file '{segment_path}'\n")
+                    segments_to_delete.append(segment_path)
+
+            if not manifest_lines:
+                return
+
+            manifest_path = os.path.join(self._segments_root, "manifest.txt")
+            with open(manifest_path, "w") as f:
+                f.writelines(manifest_lines)
+
+            temp_output_video = os.path.join(folder, "temp_output_video.mp4")
+            command = [
+                "ffmpeg", "-y",
+                "-f", "concat",
+                "-safe", "0",
+                "-i", manifest_path,
+                "-c", "copy",
+                "-movflags", "faststart",
+                temp_output_video,
+            ]
+            if not _run_ffmpeg(command, self.log, "Rebuilding video"):
+                return
+
+            shutil.move(temp_output_video, final_output_video)
+
+            # Delete all segments after successful compile
+            for segment_path in segments_to_delete:
+                try:
+                    os.remove(segment_path)
+                except OSError:
+                    pass
+
+            self.close_and_play_video(final_output_video)
+
+        elif output_exists:
+            # Append mode: output exists, add only new JPGs that don't have segments
+            new_segments = []
+            for name in jpgs:
+                stem = os.path.splitext(name)[0]
+                segment_path = os.path.join(mode_dir, stem + ".mp4")
+                if not os.path.exists(segment_path):
+                    jpg_path = os.path.join(folder, name)
+                    encoded_path = self._ensure_segment(jpg_path, mode_dir)
+                    if encoded_path:
+                        new_segments.append(encoded_path)
+
+            if not new_segments:
+                return  # Nothing new to append
+
+            manifest_lines = [f"file '{final_output_video}'\n"]
+            manifest_lines.extend(f"file '{seg}'\n" for seg in new_segments)
+
+            manifest_path = os.path.join(self._segments_root, "manifest.txt")
+            with open(manifest_path, "w") as f:
+                f.writelines(manifest_lines)
+
+            temp_output_video = os.path.join(folder, "temp_output_video.mp4")
+            command = [
+                "ffmpeg", "-y",
+                "-f", "concat",
+                "-safe", "0",
+                "-i", manifest_path,
+                "-c", "copy",
+                "-movflags", "faststart",
+                temp_output_video,
+            ]
+            if not _run_ffmpeg(command, self.log, "Appending new frames to video"):
+                return
+
+            shutil.move(temp_output_video, final_output_video)
+
+            # Delete new segment files after successful compile
+            for segment_path in new_segments:
+                try:
+                    os.remove(segment_path)
+                except OSError:
+                    pass
+
+            self.close_and_play_video(final_output_video)
+
+        else:
+            # First compile: no output exists, treat like a rebuild
+            manifest_lines = []
+            segments_to_delete = []
+            for name in jpgs:
+                jpg_path = os.path.join(folder, name)
+                segment_path = self._ensure_segment(jpg_path, mode_dir)
+                if segment_path:
+                    manifest_lines.append(f"file '{segment_path}'\n")
+                    segments_to_delete.append(segment_path)
+
+            if not manifest_lines:
+                return
+
+            manifest_path = os.path.join(self._segments_root, "manifest.txt")
+            with open(manifest_path, "w") as f:
+                f.writelines(manifest_lines)
+
+            temp_output_video = os.path.join(folder, "temp_output_video.mp4")
+            command = [
+                "ffmpeg", "-y",
+                "-f", "concat",
+                "-safe", "0",
+                "-i", manifest_path,
+                "-c", "copy",
+                "-movflags", "faststart",
+                temp_output_video,
+            ]
+            if not _run_ffmpeg(command, self.log, "Creating initial video"):
+                return
+
+            shutil.move(temp_output_video, final_output_video)
+
+            # Delete all segments after successful compile
+            for segment_path in segments_to_delete:
+                try:
+                    os.remove(segment_path)
+                except OSError:
+                    pass
+
+            self.close_and_play_video(final_output_video)
 
     def close_and_play_video(self, video_path):
         try:
@@ -241,7 +354,17 @@ class Watcher:
 
     def start(self):
         os.makedirs(self.config.folder, exist_ok=True)
-        self.handler.process_existing()
+
+        # Clean up segment cache for a fresh session start
+        segments_root = os.path.join(self.config.folder, SEGMENTS_DIRNAME)
+        if os.path.exists(segments_root):
+            try:
+                shutil.rmtree(segments_root)
+            except OSError:
+                pass
+
+        with self.handler.compile_lock:
+            self.handler.process_existing()
         self.observer.schedule(self.handler, self.config.folder, recursive=False)
         self.observer.start()
 
