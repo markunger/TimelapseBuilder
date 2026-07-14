@@ -29,7 +29,6 @@ class App:
 
         self.watcher = None
         self.msg_queue = queue.Queue()
-        self.log_visible = tk.BooleanVar(value=False)
 
         saved = config_module.load_config()
         self.folder_var = tk.StringVar(value=saved["watch_folder"])
@@ -46,6 +45,7 @@ class App:
     def _build_widgets(self):
         bg_color = "#B9BBB6"
         self.root.config(bg=bg_color)
+        self.root.geometry("480x450")
 
         pad = {"padx": 12, "pady": 8}
 
@@ -57,12 +57,13 @@ class App:
         folder_frame = tk.Frame(main_frame, bg=bg_color)
         folder_frame.pack(fill="x", **pad)
         tk.Label(folder_frame, text="Watch folder:", bg=bg_color, fg="black").pack(anchor="w")
-        entry_row = tk.Frame(folder_frame, bg=bg_color)
-        entry_row.pack(fill="x", pady=(4, 0))
-        self.folder_entry = tk.Entry(entry_row, textvariable=self.folder_var, state="readonly")
-        self.folder_entry.pack(side="left", fill="x", expand=True)
-        self.browse_button = tk.Button(entry_row, text="Choose Folder...", command=self._choose_folder)
-        self.browse_button.pack(side="left", padx=(6, 0))
+        self.folder_entry = tk.Entry(folder_frame, textvariable=self.folder_var, state="readonly")
+        self.folder_entry.pack(fill="x", pady=(4, 4))
+        self.browse_button = tk.Button(folder_frame, text="Choose Folder...", command=self._choose_folder)
+        self.browse_button.pack(anchor="w")
+
+        # Options section header
+        tk.Label(main_frame, text="Options:", bg=bg_color, fg="black", font=("Helvetica", 10, "bold")).pack(anchor="w", padx=12, pady=(12, 6))
 
         # Checkboxes
         self.delete_raw_check = tk.Checkbutton(
@@ -84,18 +85,15 @@ class App:
         )
         self.focus_stack_check.pack(anchor="w", **pad)
 
-        # Focus stack options frame (shown/hidden based on checkbox)
+        # Focus stack options frame (always shown)
         self.focus_stack_frame = tk.Frame(main_frame, bg=bg_color)
-        focus_options_row = tk.Frame(self.focus_stack_frame, bg=bg_color)
-        focus_options_row.pack(fill="x", padx=30, pady=(0, 6))
-        tk.Label(focus_options_row, text="Stack size:", bg=bg_color, fg="black").pack(side="left", padx=(0, 6))
-        self.stack_size_entry = tk.Entry(focus_options_row, textvariable=self.stack_size_var, width=8)
+        self.focus_stack_frame.pack(fill="x", padx=30, pady=(0, 6))
+        tk.Label(self.focus_stack_frame, text="Stack size:", bg=bg_color, fg="black").pack(side="left", padx=(0, 6))
+        self.stack_size_entry = tk.Entry(self.focus_stack_frame, textvariable=self.stack_size_var, width=8)
         self.stack_size_entry.pack(side="left", padx=(0, 12))
-        tk.Label(focus_options_row, text="Monitor photo #:", bg=bg_color, fg="black").pack(side="left", padx=(0, 6))
-        self.monitor_index_entry = tk.Entry(focus_options_row, textvariable=self.monitor_index_var, width=8)
+        tk.Label(self.focus_stack_frame, text="Monitor photo #:", bg=bg_color, fg="black").pack(side="left", padx=(0, 6))
+        self.monitor_index_entry = tk.Entry(self.focus_stack_frame, textvariable=self.monitor_index_var, width=8)
         self.monitor_index_entry.pack(side="left")
-        if self.focus_stack_var.get():
-            self.focus_stack_frame.pack(fill="x")
 
         # Control row (Start/Stop button and status)
         control_row = tk.Frame(main_frame, bg=bg_color)
@@ -103,7 +101,7 @@ class App:
         self.toggle_button = tk.Button(
             control_row, text="Start", command=self._toggle,
             bg="#87CEEB", fg="black", font=("Helvetica", 12, "bold"),
-            width=8, height=1, highlightthickness=0, bd=0
+            width=8, height=1
         )
         self.toggle_button.pack(side="left")
         self.status_label = tk.Label(control_row, text="Idle", bg=bg_color, fg="#CC6600", font=("Helvetica", 11, "bold"))
@@ -112,16 +110,12 @@ class App:
         self.start_time_label = tk.Label(main_frame, text="Timelapse Start: —", bg=bg_color, fg="black")
         self.start_time_label.pack(anchor="w", **pad)
 
-        # Log toggle button
-        self.log_toggle_button = tk.Button(
-            main_frame, text="Show Log", command=self._toggle_log,
-            bg="black", fg="white", width=12, height=1, highlightthickness=0, bd=0
-        )
-        self.log_toggle_button.pack(anchor="w", padx=12, pady=(8, 4))
-
+        # Log section
         self.log_frame = tk.Frame(main_frame, bg=bg_color)
+        self.log_frame.pack(fill="both", expand=True, padx=0, pady=8)
+        tk.Label(self.log_frame, text="Log:", bg=bg_color, fg="black").pack(anchor="w", padx=0, pady=(0, 4))
         self.log_text = scrolledtext.ScrolledText(
-            self.log_frame, height=12, state="disabled",
+            self.log_frame, height=6, state="disabled",
             bg="white", fg="black", insertbackground="black"
         )
         self.log_text.pack(fill="both", expand=True, padx=0, pady=0)
@@ -134,23 +128,8 @@ class App:
             self.folder_var.set(chosen)
 
     def _on_focus_stack_toggle(self):
-        enabled = self.focus_stack_var.get()
-        if enabled:
-            self.focus_stack_frame.pack(fill="x", padx=30, pady=(0, 6))
-        else:
-            self.focus_stack_frame.pack_forget()
-
-    def _toggle_log(self):
-        if self.log_visible.get():
-            self.log_frame.pack_forget()
-            self.log_visible.set(False)
-            self.log_toggle_button.config(text="Show Log")
-            self.root.geometry("480x380")
-        else:
-            self.log_frame.pack(fill="both", expand=True, padx=10, pady=10)
-            self.log_visible.set(True)
-            self.log_toggle_button.config(text="Hide Log")
-            self.root.geometry("480x540")
+        # Focus stack options are always visible now
+        pass
 
     def _toggle(self):
         if self.watcher is None:
