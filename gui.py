@@ -89,20 +89,19 @@ class App:
         self.focus_stack_frame = tk.Frame(main_frame, bg=bg_color)
         self.focus_stack_frame.pack(fill="x", padx=30, pady=(0, 6))
         tk.Label(self.focus_stack_frame, text="Stack size:", bg=bg_color, fg="black").pack(side="left", padx=(0, 6))
-        self.stack_size_entry = tk.Entry(self.focus_stack_frame, textvariable=self.stack_size_var, width=8, relief=tk.FLAT, bg="white", fg="black")
+        self.stack_size_entry = tk.Entry(self.focus_stack_frame, textvariable=self.stack_size_var, width=5, relief=tk.FLAT, bg="white", fg="black")
         self.stack_size_entry.pack(side="left", padx=(0, 12))
         tk.Label(self.focus_stack_frame, text="Monitor photo #:", bg=bg_color, fg="black").pack(side="left", padx=(0, 6))
-        self.monitor_index_entry = tk.Entry(self.focus_stack_frame, textvariable=self.monitor_index_var, width=8, relief=tk.FLAT, bg="white", fg="black")
+        self.monitor_index_entry = tk.Entry(self.focus_stack_frame, textvariable=self.monitor_index_var, width=5, relief=tk.FLAT, bg="white", fg="black")
         self.monitor_index_entry.pack(side="left")
         self._update_focus_stack_state()
 
         # Control row (Start/Stop button and status)
         control_row = tk.Frame(main_frame, bg=bg_color)
-        control_row.pack(fill="x", **pad)
+        control_row.pack(fill="x", padx=12, pady=(20, 8))
         self.toggle_button = tk.Button(
             control_row, text="Start", command=self._toggle,
-            bg="#87CEEB", fg="black", font=("Helvetica", 12, "bold"),
-            width=8, height=1
+            bg="#87CEEB", fg="black", font=("Helvetica", 12, "bold")
         )
         self.toggle_button.pack(side="left")
         self.status_label = tk.Label(control_row, text="Idle", bg=bg_color, fg="#CC6600", font=("Helvetica", 11, "bold"))
