@@ -48,7 +48,6 @@ class App:
         self.root.config(bg=bg_color)
 
         pad = {"padx": 12, "pady": 8}
-        inner_pad = {"padx": 10, "pady": 6}
 
         # Main content frame with buffer
         main_frame = tk.Frame(self.root, bg=bg_color)
@@ -67,33 +66,36 @@ class App:
 
         # Checkboxes
         self.delete_raw_check = tk.Checkbutton(
-            main_frame, text="Delete RAW files (CR2/CR3, etc.) after each shot",
+            main_frame, text="Delete RAW Files",
             variable=self.delete_raw_var, bg=bg_color, fg="black", selectcolor=bg_color
         )
         self.delete_raw_check.pack(anchor="w", **pad)
 
         self.overlay_check = tk.Checkbutton(
-            main_frame, text="Stamp capture date/time on video frames",
+            main_frame, text="Add Capture Date/Time",
             variable=self.overlay_var, bg=bg_color, fg="black", selectcolor=bg_color
         )
         self.overlay_check.pack(anchor="w", **pad)
 
         self.focus_stack_check = tk.Checkbutton(
-            main_frame, text="Focus stack timelapse",
+            main_frame, text="Focus Stack Timelapse",
             variable=self.focus_stack_var, command=self._on_focus_stack_toggle,
             bg=bg_color, fg="black", selectcolor=bg_color
         )
         self.focus_stack_check.pack(anchor="w", **pad)
 
+        # Focus stack options frame (shown/hidden based on checkbox)
         self.focus_stack_frame = tk.Frame(main_frame, bg=bg_color)
-        tk.Label(self.focus_stack_frame, text="Stack size:", bg=bg_color, fg="black").pack(side="left", padx=(0, 6))
-        self.stack_size_entry = tk.Entry(self.focus_stack_frame, textvariable=self.stack_size_var, width=8)
+        focus_options_row = tk.Frame(self.focus_stack_frame, bg=bg_color)
+        focus_options_row.pack(fill="x", padx=30, pady=(0, 6))
+        tk.Label(focus_options_row, text="Stack size:", bg=bg_color, fg="black").pack(side="left", padx=(0, 6))
+        self.stack_size_entry = tk.Entry(focus_options_row, textvariable=self.stack_size_var, width=8)
         self.stack_size_entry.pack(side="left", padx=(0, 12))
-        tk.Label(self.focus_stack_frame, text="Monitor photo #:", bg=bg_color, fg="black").pack(side="left", padx=(0, 6))
-        self.monitor_index_entry = tk.Entry(self.focus_stack_frame, textvariable=self.monitor_index_var, width=8)
+        tk.Label(focus_options_row, text="Monitor photo #:", bg=bg_color, fg="black").pack(side="left", padx=(0, 6))
+        self.monitor_index_entry = tk.Entry(focus_options_row, textvariable=self.monitor_index_var, width=8)
         self.monitor_index_entry.pack(side="left")
         if self.focus_stack_var.get():
-            self.focus_stack_frame.pack(fill="x", padx=30, pady=(0, 6))
+            self.focus_stack_frame.pack(fill="x")
 
         # Control row (Start/Stop button and status)
         control_row = tk.Frame(main_frame, bg=bg_color)
@@ -101,8 +103,7 @@ class App:
         self.toggle_button = tk.Button(
             control_row, text="Start", command=self._toggle,
             bg="#87CEEB", fg="black", font=("Helvetica", 12, "bold"),
-            padx=12, pady=6, activebackground="#6BA5D5", activeforeground="black",
-            relief=tk.RAISED, bd=2
+            width=8, height=1, highlightthickness=0, bd=0
         )
         self.toggle_button.pack(side="left")
         self.status_label = tk.Label(control_row, text="Idle", bg=bg_color, fg="#CC6600", font=("Helvetica", 11, "bold"))
@@ -111,12 +112,10 @@ class App:
         self.start_time_label = tk.Label(main_frame, text="Timelapse Start: —", bg=bg_color, fg="black")
         self.start_time_label.pack(anchor="w", **pad)
 
-        # Log toggle button only
+        # Log toggle button
         self.log_toggle_button = tk.Button(
             main_frame, text="Show Log", command=self._toggle_log,
-            bg="black", fg="white", padx=10, pady=6,
-            activebackground="#333333", activeforeground="white",
-            relief=tk.RAISED, bd=2
+            bg="black", fg="white", width=12, height=1, highlightthickness=0, bd=0
         )
         self.log_toggle_button.pack(anchor="w", padx=12, pady=(8, 4))
 
@@ -205,7 +204,7 @@ class App:
         self.watcher = Watcher(watcher_config)
         self.watcher.start()
 
-        self.toggle_button.config(text="Stop", bg="#FF4444", fg="white", activebackground="#CC3333", activeforeground="white", relief=tk.RAISED, bd=2)
+        self.toggle_button.config(text="Stop", bg="#FF4444", fg="white")
         self.status_label.config(text="Watching...", fg="#00AA00")
         self.browse_button.config(state="disabled")
         self.delete_raw_check.config(state="disabled")
@@ -218,7 +217,7 @@ class App:
         if self.watcher is not None:
             self.watcher.stop()
             self.watcher = None
-        self.toggle_button.config(text="Start", bg="#87CEEB", fg="black", activebackground="#6BA5D5", activeforeground="black", relief=tk.RAISED, bd=2)
+        self.toggle_button.config(text="Start", bg="#87CEEB", fg="black")
         self.status_label.config(text="Idle", fg="#CC6600")
         self.browse_button.config(state="normal")
         self.delete_raw_check.config(state="normal")
