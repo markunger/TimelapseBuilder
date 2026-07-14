@@ -24,7 +24,7 @@ class App:
     def __init__(self, root):
         self.root = root
         self.root.title("WonderLab Timelapse Builder")
-        self.root.geometry("440x500")
+        self.root.geometry("390x500")
         self.root.config(bg="black")
 
         self.watcher = None
@@ -45,7 +45,7 @@ class App:
     def _build_widgets(self):
         bg_color = "#B9BBB6"
         self.root.config(bg=bg_color)
-        self.root.geometry("440x500")
+        self.root.geometry("390x500")
 
         pad = {"padx": 12, "pady": 8}
 
@@ -101,7 +101,7 @@ class App:
         control_row.pack(fill="x", padx=12, pady=(20, 8))
         self.toggle_button = tk.Button(
             control_row, text="Start", command=self._toggle,
-            bg="#87CEEB", fg="black", font=("Helvetica", 12, "bold")
+            bg="#87CEEB", fg="black", font=("Helvetica", 12, "bold"), width=8
         )
         self.toggle_button.pack(side="left")
         self.status_label = tk.Label(control_row, text="Idle", bg=bg_color, fg="#CC6600", font=("Helvetica", 11, "bold"))
@@ -188,7 +188,7 @@ class App:
         self.watcher = Watcher(watcher_config)
         self.watcher.start()
 
-        self.toggle_button.config(text="Stop", bg="#FF4444", fg="white")
+        self.toggle_button.config(text="Stop", bg="#FF4444", fg="black")
         self.status_label.config(text="Watching...", fg="#00AA00")
         self.browse_button.config(state="disabled")
         self.delete_raw_check.config(state="disabled")
