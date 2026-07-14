@@ -24,7 +24,7 @@ class App:
     def __init__(self, root):
         self.root = root
         self.root.title("WonderLab Timelapse Builder")
-        self.root.geometry("380x500")
+        self.root.geometry("440x500")
         self.root.config(bg="black")
 
         self.watcher = None
@@ -45,7 +45,7 @@ class App:
     def _build_widgets(self):
         bg_color = "#B9BBB6"
         self.root.config(bg=bg_color)
-        self.root.geometry("380x500")
+        self.root.geometry("440x500")
 
         pad = {"padx": 12, "pady": 8}
 
@@ -56,7 +56,7 @@ class App:
         # Folder selection
         folder_frame = tk.Frame(main_frame, bg=bg_color)
         folder_frame.pack(fill="x", **pad)
-        tk.Label(folder_frame, text="Watch folder:", bg=bg_color, fg="black").pack(anchor="w")
+        tk.Label(folder_frame, text="Watch folder:", bg=bg_color, fg="black", font=("Helvetica", 10, "bold")).pack(anchor="w")
         self.folder_entry = tk.Entry(folder_frame, textvariable=self.folder_var, state="readonly", relief=tk.FLAT, bg="white", fg="black")
         self.folder_entry.pack(fill="x", pady=(4, 4))
         self.browse_button = tk.Button(folder_frame, text="Choose Folder...", command=self._choose_folder)
@@ -108,13 +108,13 @@ class App:
         self.status_label = tk.Label(control_row, text="Idle", bg=bg_color, fg="#CC6600", font=("Helvetica", 11, "bold"))
         self.status_label.pack(side="left", padx=(15, 0))
 
-        self.start_time_label = tk.Label(main_frame, text="Timelapse Start: —", bg=bg_color, fg="black")
+        self.start_time_label = tk.Label(main_frame, text="Timelapse Start: —", bg=bg_color, fg="black", font=("Helvetica", 10, "bold"))
         self.start_time_label.pack(anchor="w", **pad)
 
         # Log section
         self.log_frame = tk.Frame(main_frame, bg=bg_color)
         self.log_frame.pack(fill="both", expand=True, padx=0, pady=8)
-        tk.Label(self.log_frame, text="Log:", bg=bg_color, fg="black").pack(anchor="w", padx=0, pady=(0, 4))
+        tk.Label(self.log_frame, text="Log:", bg=bg_color, fg="black", font=("Helvetica", 10, "bold")).pack(anchor="w", padx=0, pady=(0, 4))
         self.log_text = scrolledtext.ScrolledText(
             self.log_frame, height=10, state="disabled",
             bg="white", fg="black", insertbackground="black", relief=tk.FLAT
