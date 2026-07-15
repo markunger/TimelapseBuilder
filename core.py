@@ -420,6 +420,15 @@ class Watcher:
             except OSError:
                 pass
 
+        # Delete old output video so toggle/setting changes start fresh
+        # (prevents accidentally including old video in new compilation)
+        output_video = os.path.join(self.config.folder, "output_video.mp4")
+        if os.path.exists(output_video):
+            try:
+                os.remove(output_video)
+            except OSError:
+                pass
+
         with self.handler.compile_lock:
             self.handler.process_existing()
         self.observer.schedule(self.handler, self.config.folder, recursive=False)
