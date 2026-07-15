@@ -109,9 +109,29 @@ class Handler(FileSystemEventHandler):
             return
         self.image_counter += 1
         self.log(f"Image {self.image_counter} detected: {os.path.basename(event.src_path)}")
-        with self.compile_lock:
-            self._handle_one(event.src_path, retry_raw=True)
-            self.compile_video()
+
+        # In focus stack mode, only compile if this photo matches the filter
+        if self.config.focus_stack_enabled and self.config.stack_size > 1:
+            jpgs = sorted(f for f in os.listdir(self.config.folder) if f.lower().endswith(".jpg"))
+            new_photo_name = os.path.basename(event.src_path)
+            if new_photo_name in jpgs:
+                index = jpgs.index(new_photo_name)
+                monitor_idx = self.config.monitor_index - 1
+                # Check if this index matches the focus stack filter
+                if (index - monitor_idx) % self.config.stack_size == 0 and index >= monitor_idx:
+                    with self.compile_lock:
+                        self._handle_one(event.src_path, retry_raw=True)
+                        self.compile_video()
+                else:
+                    stack_position = (index % self.config.stack_size) + 1
+                    self.log(f"Skipping non-monitored photo (stack position {stack_position}/{self.config.stack_size})")
+            else:
+                self.log(f"Warning: photo not found in folder listing")
+        else:
+            # Non-focus-stack mode: always compile
+            with self.compile_lock:
+                self._handle_one(event.src_path, retry_raw=True)
+                self.compile_video()
 
     # --- per-photo processing -------------------------------------------
 
